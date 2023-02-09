@@ -5,11 +5,11 @@ kind: Component
 metadata:
   name: statestore
 spec:
-  type: state.redis
+  type: state.redis  # hey! Dapr, stores in Redis the state of whatever happens on my system with you
   version: v1
   metadata:
   - name: redisHost
-    value: redis-master.production.svc.cluster.local:6379
+    value: redis-master.test-dapr-fpe.svc.cluster.local:6379
   - name: redisPassword
     secretKeyRef:
       name: redis
@@ -22,11 +22,11 @@ kind: Component
 metadata:
   name: pubsub
 spec:
-  type: pubsub.redis
+  type: pubsub.redis # hey! Dapr, whenever somebody wants to publish an event or listen for events the store should be redis (the store I defined above)
   version: v1
   metadata:
   - name: redisHost
-    value: redis-master.production.svc.cluster.local:6379
+    value: redis-master.test-dapr-fpe.svc.cluster.local:6379
   - name: redisPassword
     secretKeyRef:
       name: redis
