@@ -1,0 +1,63 @@
+kubectl create namespace test-dapr-fpe
+
+helm repo add dapr \
+    https://dapr.github.io/helm-charts
+
+helm repo update
+
+helm upgrade --install \
+    dapr dapr/dapr \
+    --namespace dapr-system \
+    --create-namespace \
+    --wait
+
+
+helm repo add bitnami \
+    https://charts.bitnami.com/bitnami
+
+helm repo update
+
+helm upgrade --install \
+    redis bitnami/redis \
+    --namespace test-dapr-fpe \
+    --create-namespace \
+    --wait
+
+kubectl --namespace test-dapr-fpe apply \
+    --filename redis-dapr.yaml
+
+kubectl --namespace test-dapr-fpe apply \
+    --filename apps.yaml
+
+kubectl --namespace test-dapr-fpe \
+    rollout status \
+    deployment speech-to-text
+
+kubectl --namespace test-dapr-fpe \
+    rollout status \
+    deployment tweet
+
+kubectl --namespace test-dapr-fpe \
+    rollout status \
+    deployment publications
+
+export LB_IP=$(kubectl \
+    --namespace test-dapr-fpe \
+    get svc publications \
+    --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
+
+curl "http://$LB_IP/addVideo?id=JFALdhtBxR8&name=Rancher&url=https://youtu.be/JFALdhtBxR8"
+
+curl "http://$LB_IP/addPodcast?id=143&name=CI/CD&url=https://www.devopsparadox.com/episodes/how-to-get-started-with-ci-cd-143"
+
+curl "http://$LB_IP/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
+
+kubectl --namespace test-dapr-fpe logs \
+    --selector app=tweet \
+    --container tweet \
+    --tail 20
+
+kubectl --namespace test-dapr-fpe logs \
+    --selector app=speech-to-text \
+    --container speech-to-text \
+    --tail 20
