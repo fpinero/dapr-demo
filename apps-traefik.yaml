@@ -1,0 +1,141 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speech-to-text
+  labels:
+    app: speech-to-text
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: speech-to-text
+  template:
+    metadata:
+      labels:
+        app: speech-to-text
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: speech-to-text
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: speech-to-text
+        image: ghcr.io/vfarcic/dapr-speech-to-text:0.1.1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PUBSUB_NAME
+          value: pubsub
+        - name: ROUTE
+          value: /publish
+        - name: TOPICS
+          value: video,podcast
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweet
+  labels:
+    app: tweet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweet
+  template:
+    metadata:
+      labels:
+        app: tweet
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: tweet
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: tweet
+        image: ghcr.io/vfarcic/dapr-tweet:0.1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PUBSUB_NAME
+          value: pubsub
+        - name: ROUTE
+          value: /publish
+        - name: TOPICS
+          value: video,podcast,blog
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publications
+  labels:
+    app: publications
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publications
+  template:
+    metadata:
+      labels:
+        app: publications
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "publications"
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: publications
+        image: ghcr.io/vfarcic/dapr-publications:0.1.19
+        ports:
+        - containerPort: 8080
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: publications-service
+  labels:
+    app: publications
+spec:
+  selector:
+    app: publications
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+#  type: LoadBalancer
+
+---
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: publications-ingress
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: PathPrefix(`/addVideo`)
+    kind: Rule
+    services:
+    - name: publications-service
+      port: 80
+  - match: PathPrefix(`/addPodcast`)
+    kind: Rule
+    services:
+    - name: publications-service
+      port: 80
+  - match: PathPrefix(`/addBlog`)
+    kind: Rule
+    services:
+    - name: publications-service
+      port: 80
+
