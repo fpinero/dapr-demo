@@ -26,8 +26,14 @@ helm upgrade --install \
 kubectl --namespace test-dapr-fpe apply \
     --filename redis-dapr.yaml
 
+----- deploy using LoadBalancer ---------
 kubectl --namespace test-dapr-fpe apply \
     --filename apps.yaml
+-----------------------------------------
+----- deploy using Traefik Ingress ---------
+kubectl --namespace test-dapr-fpe apply \
+    --filename apps-traefik.yaml
+---------------------------------------------
 
 kubectl --namespace test-dapr-fpe \
     rollout status \
@@ -40,7 +46,7 @@ kubectl --namespace test-dapr-fpe \
 kubectl --namespace test-dapr-fpe \
     rollout status \
     deployment publications
-
+----------------------------------------- if deployed using LoadBalancer ---------------
 export LB_IP=$(kubectl \
     --namespace test-dapr-fpe \
     get svc publications \
@@ -51,6 +57,15 @@ curl "http://$LB_IP/addVideo?id=JFALdhtBxR8&name=Rancher&url=https://youtu.be/JF
 curl "http://$LB_IP/addPodcast?id=143&name=CI/CD&url=https://www.devopsparadox.com/episodes/how-to-get-started-with-ci-cd-143"
 
 curl "http://$LB_IP/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
+------------------------------------------------------------------------------------------
+
+----------------------------------------- if deployed using Traefik Ingress ---------------
+curl "http://k3s.n0-reply.com/addVideo?id=JFALdhtBxR8&name=Rancher&url=https://youtu.be/JFALdhtBxR8"
+
+curl "http://k3s.n0-reply.com/addPodcast?id=143&name=CI/CD&url=https://www.devopsparadox.com/episodes/how-to-get-started-with-ci-cd-143"
+
+curl "http://k3s.n0-reply.com/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
+------------------------------------------------------------------------------------------
 
 kubectl --namespace test-dapr-fpe logs \
     --selector app=tweet \
