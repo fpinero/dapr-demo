@@ -61,10 +61,16 @@ curl "http://$LB_IP/addBlog?name=Rancher&url=https://technologyconversations.com
 
 ----------------------------------------- if deployed using Traefik Ingress ---------------
 curl "http://k3s.n0-reply.com/addVideo?id=JFALdhtBxR8&name=Rancher&url=https://youtu.be/JFALdhtBxR8"
+civo
+curl "http://74.220.29.117/addVideo?id=JFALdhtBxR8&name=Rancher&url=https://youtu.be/JFALdhtBxR8"
 
 curl "http://k3s.n0-reply.com/addPodcast?id=143&name=CI/CD&url=https://www.devopsparadox.com/episodes/how-to-get-started-with-ci-cd-143"
+civo
+curl "http://74.220.29.117/addPodcast?id=143&name=CI/CD&url=https://www.devopsparadox.com/episodes/how-to-get-started-with-ci-cd-143"
 
 curl "http://k3s.n0-reply.com/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
+civo
+curl "http://74.220.29.117/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
 ------------------------------------------------------------------------------------------
 
 kubectl --namespace test-dapr-fpe logs \
