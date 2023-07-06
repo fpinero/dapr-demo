@@ -7,7 +7,7 @@ helm repo update
 
 helm upgrade --install \
     dapr dapr/dapr \
-    --namespace dapr-system \
+    --namespace test-dapr-fpe \
     --create-namespace \
     --wait
 
@@ -33,6 +33,10 @@ kubectl --namespace test-dapr-fpe apply \
 ----- deploy using Traefik Ingress ---------
 kubectl --namespace test-dapr-fpe apply \
     --filename apps-traefik.yaml
+---------------------------------------------
+----- deploy using nginx Ingress ---------
+kubectl --namespace test-dapr-fpe apply \
+    --filename apps-ngnix-ingress.yaml
 ---------------------------------------------
 
 kubectl --namespace test-dapr-fpe \
@@ -71,6 +75,15 @@ curl "http://74.220.29.117/addPodcast?id=143&name=CI/CD&url=https://www.devopspa
 curl "http://k3s.n0-reply.com/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
 civo
 curl "http://74.220.29.117/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
+------------------------------------------------------------------------------------------
+
+----------------------------------------- if deployed using nginx-ingress ---------------
+
+url "https://pubsub.lixdevops.navify.com/addVideo?id=JFALdhtBxR8&name=Rancher&url=https://youtu.be/JFALdhtBxR8"
+
+curl "https://pubsub.lixdevops.navify.com/addPodcast?id=143&name=CI/CD&url=https://www.devopsparadox.com/episodes/how-to-get-started-with-ci-cd-143"
+
+curl "https://pubsub.lixdevops.navify.com/addBlog?name=Rancher&url=https://technologyconversations.com/2022/01/24/how-to-manage-production-grade-kubernetes-clusters-with-rancher"
 ------------------------------------------------------------------------------------------
 
 kubectl --namespace test-dapr-fpe logs \

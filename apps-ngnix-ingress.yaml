@@ -1,0 +1,153 @@
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: speech-to-text
+  namespace: test-dapr-fpe
+  labels:
+    app: speech-to-text
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: speech-to-text
+  template:
+    metadata:
+      labels:
+        app: speech-to-text
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: speech-to-text
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: speech-to-text
+        image: ghcr.io/vfarcic/dapr-speech-to-text:0.1.1
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PUBSUB_NAME
+          value: pubsub
+        - name: ROUTE
+          value: /publish
+        - name: TOPICS
+          value: video,podcast
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweet
+  namespace: test-dapr-fpe
+  labels:
+    app: tweet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweet
+  template:
+    metadata:
+      labels:
+        app: tweet
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: tweet
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: tweet
+        image: ghcr.io/vfarcic/dapr-tweet:0.1.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PUBSUB_NAME
+          value: pubsub
+        - name: ROUTE
+          value: /publish
+        - name: TOPICS
+          value: video,podcast,blog
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publications
+  namespace: test-dapr-fpe
+  labels:
+    app: publications
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publications
+  template:
+    metadata:
+      labels:
+        app: publications
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "publications"
+        dapr.io/app-port: "8080"
+    spec:
+      containers:
+      - name: publications
+        image: ghcr.io/vfarcic/dapr-publications:0.1.19
+        ports:
+        - containerPort: 8080
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: publications-srv
+  namespace: test-dapr-fpe
+  labels:
+    app: publications
+spec:
+  selector:
+    app: publications
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+#  type: LoadBalancer
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: publications-ingress
+  namespace: test-dapr-fpe
+spec:
+  rules:
+  - host: pubsub.lixdevops.navify.com
+    http:
+      paths:
+      - path: /addVideo
+        pathType: Prefix
+        backend:
+          service:
+            name: publications-srv
+            port:
+              number: 80
+      - path: /addPodcast
+        pathType: Prefix
+        backend:
+          service:
+            name: publications-srv
+            port:
+              number: 80
+      - path: /addBlog
+        pathType: Prefix
+        backend:
+          service:
+            name: publications-srv
+            port:
+              number: 80
+  ingressClassName: nginx
